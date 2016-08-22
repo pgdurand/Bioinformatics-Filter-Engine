@@ -1,0 +1,12 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>Size</name>
+  <description>select by db sequence length</description>
+  <rules>
+    <BRule>
+      <accessor>HSP alignment length</accessor>
+      <operator>&gt;=</operator>
+      <value class="long">200</value>
+    </BRule>
+  </rules>
+</BFilter>

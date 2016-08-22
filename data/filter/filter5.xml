@@ -1,0 +1,13 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>SeqInfo: Org</name>
+  <description>get HSP from human only</description>
+  <exclusive>false</exclusive>
+  <rules>
+    <BRule>
+      <accessor>SeqInfo: Organism</accessor>
+      <operator>::</operator>
+      <value class="string">(?i)(homo)</value>
+    </BRule>
+  </rules>
+</BFilter>

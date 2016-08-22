@@ -1,0 +1,13 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>Retain First Hsp only</name>
+  <description>Retain only the first Hsp for every Hit created by Blast.</description>
+  <exclusive>false</exclusive>
+  <rules>
+    <BRule>
+      <accessor>HSP rank</accessor>
+      <operator>==</operator>
+      <value class="long">1</value>
+    </BRule>
+  </rules>
+</BFilter>

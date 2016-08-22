@@ -1,0 +1,13 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>SeqInfo: Date</name>
+  <description>get by date</description>
+  <exclusive>false</exclusive>
+  <rules>
+    <BRule>
+      <accessor>SeqInfo: Creation date</accessor>
+      <operator>&lt;</operator>
+      <value class="long">20050101</value>
+    </BRule>
+  </rules>
+</BFilter>

@@ -1,0 +1,17 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>Size / eval</name>
+  <description>select by alignment size and evalue</description>
+  <rules>
+    <BRule>
+      <accessor>HSP alignment length</accessor>
+      <operator>&gt;=</operator>
+      <value class="long">250</value>
+    </BRule>
+    <BRule>
+      <accessor>HSP E-Value</accessor>
+      <operator>&lt;=</operator>
+      <value class="double">0.0010</value>
+    </BRule>
+  </rules>
+</BFilter>

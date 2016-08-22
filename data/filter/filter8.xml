@@ -1,0 +1,23 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>Well aligned</name>
+  <description>get Hits having 90+% and 60% coverage</description>
+  <exclusive>true</exclusive>
+  <rules>
+    <BRule>
+      <accessor>Query Coverage</accessor>
+      <operator>&gt;=</operator>
+      <value class="double">60.0</value>
+    </BRule>
+    <BRule>
+      <accessor>Hit Coverage</accessor>
+      <operator>&gt;=</operator>
+      <value class="double">60.0</value>
+    </BRule>
+    <BRule>
+      <accessor>HSP % of identities</accessor>
+      <operator>&gt;=</operator>
+      <value class="long">90</value>
+    </BRule>
+  </rules>
+</BFilter>

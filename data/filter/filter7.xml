@@ -1,0 +1,28 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>Known HSP</name>
+  <description>get well-annotated HSP</description>
+  <exclusive>true</exclusive>
+  <rules>
+    <BRule>
+      <accessor>Hit definition</accessor>
+      <operator>!:</operator>
+      <value class="string">unknown</value>
+    </BRule>
+    <BRule>
+      <accessor>Hit definition</accessor>
+      <operator>!:</operator>
+      <value class="string">hypothetical</value>
+    </BRule>
+    <BRule>
+      <accessor>Hit definition</accessor>
+      <operator>!:</operator>
+      <value class="string">predicted</value>
+    </BRule>
+    <BRule>
+      <accessor>SeqInfo: Creation date</accessor>
+      <operator>&gt;</operator>
+      <value class="long">20050101</value>
+    </BRule>
+  </rules>
+</BFilter>

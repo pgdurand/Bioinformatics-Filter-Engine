@@ -1,0 +1,43 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>Well aligned and known</name>
+  <description>get Hits having 90+% and 60% coverage and known sequence definition</description>
+  <exclusive>true</exclusive>
+  <rules>
+    <BRule>
+      <accessor>Query Coverage</accessor>
+      <operator>&gt;=</operator>
+      <value class="double">60.0</value>
+    </BRule>
+    <BRule>
+      <accessor>Hit Coverage</accessor>
+      <operator>&gt;=</operator>
+      <value class="double">60.0</value>
+    </BRule>
+    <BRule>
+      <accessor>HSP % of identities</accessor>
+      <operator>&gt;=</operator>
+      <value class="long">90</value>
+    </BRule>
+    <BRule>
+      <accessor>Hit definition</accessor>
+      <operator>!:</operator>
+      <value class="string">unknown</value>
+    </BRule>
+    <BRule>
+      <accessor>Hit definition</accessor>
+      <operator>!:</operator>
+      <value class="string">hypothetical</value>
+    </BRule>
+    <BRule>
+      <accessor>Hit definition</accessor>
+      <operator>!:</operator>
+      <value class="string">predicted</value>
+    </BRule>
+    <BRule>
+      <accessor>Hit definition</accessor>
+      <operator>!:</operator>
+      <value class="string">putative</value>
+    </BRule>
+  </rules>
+</BFilter>
