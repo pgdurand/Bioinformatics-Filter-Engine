@@ -267,4 +267,11 @@ public class BAccessorsBOutput implements BOperatorAccessors, BDataAccessors {
     return opeSymbolToTxt_.get(opeSymbol);
   }
 
+  public void addAccessorEntry(BAccessorEntry entry){
+    String name = entry.getAccessorVisibleName();
+    if (accessors_.containsKey(name)){
+      accessors_.remove(name);
+    }
+    accessors_.put(name, entry);
+  }
 }
