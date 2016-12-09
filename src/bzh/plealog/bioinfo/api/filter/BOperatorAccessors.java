@@ -48,7 +48,7 @@ public interface BOperatorAccessors {
   public static final String OPE_GreatherThanEqual = ">=";
 
   // pattern matching operators
-  public static final String OPE_MatchRegExp       = "::=";
+  public static final String OPE_MatchRegExp       = "::";
   public static final String OPE_NotMatchRegExp    = "!:";
 
   public static final String[] OPE_FOR_NUMBERS = {
@@ -76,6 +76,13 @@ public interface BOperatorAccessors {
     OPE_FUNC_StrInSet,
     OPE_FUNC_StrNotInSet
   };
+
+  public static final String[] OPE_FOR_BOOLEAN = {
+      //basic boolean operators
+      OPE_Equal,
+      OPE_NotEqual
+    };
+
   /**
    * Return an enumeration over the accessor visible names of a data model.
    */
