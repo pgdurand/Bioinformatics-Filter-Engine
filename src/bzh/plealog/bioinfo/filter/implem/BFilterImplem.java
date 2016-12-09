@@ -66,31 +66,39 @@ public class BFilterImplem implements BFilter {
   private BHspSorter       hspComparator;
   private BOperatorAccessors filterModel_;
 
-  private static final String GR_VAR = "g1 as e1:";
-  private static final String E2_VAR = "e2";
-  private static final String E3_VAR = "e3";
-  private static final String E4_VAR = "e4";
-  private static final String E5_VAR = "e5";
-  private static final String BO_VAR = "v1";
-  private static final String BI_VAR = "v2";
-  private static final String BH_VAR = "v3";
-  private static final String BS_VAR = "v4";
-  private static final String FT_VAR = "v5";
-  private static final String QL_VAR = "v6";
-  private static final String IN_VAR = " in \"";
+  protected static final String GR_VAR = "g1 as e1:";
+  protected static final String E2_VAR = "e2";
+  protected static final String E3_VAR = "e3";
+  protected static final String E4_VAR = "e4";
+  protected static final String E5_VAR = "e5";
+  protected static final String BO_VAR = "v1";
+  protected static final String BI_VAR = "v2";
+  protected static final String BH_VAR = "v3";
+  protected static final String BS_VAR = "v4";
+  protected static final String FT_VAR = "v5";
+  protected static final String QL_VAR = "v6";
+  protected static final String IN_VAR = " in \"";
 
   public BFilterImplem(BOperatorAccessors fModel){
+    this(fModel, new BGDataModel());
+  }
+
+  public BFilterImplem(BOperatorAccessors fModel, BGDataModel graphDataModel){
     filterModel_ = fModel;
     rules_ = new ArrayList<BRule>();
-    bGraphModel_ = new BGDataModel();
+    bGraphModel_ = graphDataModel;
     description_="no description";
     iterComparator = new BIterationSorter();
     hitComparator = new BHitSorter();
     hspComparator = new BHspSorter();
+    
+  }
+  public BFilterImplem(BOperatorAccessors fModel, BFilterIO filter){
+    this(fModel, new BGDataModel(), filter);
   }
 
-  public BFilterImplem(BOperatorAccessors fModel, BFilterIO filter){
-    this(fModel);
+  public BFilterImplem(BOperatorAccessors fModel, BGDataModel graphDataModel, BFilterIO filter){
+    this(fModel, graphDataModel);
 
     setName(filter.getName());
     setDescription(filter.getDescription());
@@ -100,10 +108,14 @@ public class BFilterImplem implements BFilter {
     while(iter.hasNext()){
       rules_.add(new BRuleImplem(iter.next()));
     }
+    
+  }
+  public BFilterImplem(BOperatorAccessors fModel, String filterName){
+    this(fModel, new BGDataModel(), filterName);
   }
 
-  public BFilterImplem(BOperatorAccessors fModel, String filterName){
-    this(fModel);
+  public BFilterImplem(BOperatorAccessors fModel, BGDataModel graphDataModel, String filterName){
+    this(fModel, graphDataModel);
     setName(filterName);
   }
 
@@ -407,7 +419,7 @@ public class BFilterImplem implements BFilter {
    * Converts an HGE result object to a BOutput. If parameter rSet is null
    * or empty, this method returns null.
    */
-  private SROutput prepareResult(Set<HGEResult> rSet){
+  protected SROutput prepareResult(Set<HGEResult> rSet){
     Hashtable<Object, Object>    ht;
     Iterator<HGEResult>          iter;
     HGEResult    result;
@@ -495,6 +507,20 @@ public class BFilterImplem implements BFilter {
     public int compare(SRHsp o1,SRHsp o2){
       return (o1.getHspNum()-o2.getHspNum());
     }
+  }
+
+  /**
+   * For internal use only.
+   */
+  protected HGEQuery getQuery(){
+    return query_;
+  }
+
+  /**
+   * For internal use only.
+   */
+  protected BGDataModel getDataModel(){
+    return bGraphModel_;
   }
 
   /**
