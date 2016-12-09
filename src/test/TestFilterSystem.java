@@ -32,6 +32,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import bzh.plealog.bioinfo.api.core.config.CoreSystemConfigurator;
+import bzh.plealog.bioinfo.api.data.feature.Feature;
+import bzh.plealog.bioinfo.api.data.feature.FeatureTable;
+import bzh.plealog.bioinfo.api.data.feature.utils.FeatureSystem;
 import bzh.plealog.bioinfo.api.data.searchresult.SROutput;
 import bzh.plealog.bioinfo.api.data.searchresult.io.SRLoader;
 import bzh.plealog.bioinfo.api.data.searchresult.io.SRWriter;
@@ -48,9 +51,11 @@ import bzh.plealog.bioinfo.io.searchresult.SerializerSystemFactory;
  * @author Patrick G. Durand
  */
 public class TestFilterSystem {
-	private static File            blastFile;
+  private static File            blastFile;
+  private static File            blastFile_simple;
 	private static File            tmpFile;
-	private static File            filterFile;
+  private static File            filterFile;
+  private static File            featureFilterFile;
 	private static SRLoader         ncbiBlastLoader;
 	private static SRWriter         ncbiBlastWriter;
 	private static HashSet<String> hitIDs;
@@ -66,11 +71,13 @@ public class TestFilterSystem {
 		CoreSystemConfigurator.initializeSystem();
 		FilterSystemConfigurator.initializeSystem();
 		// sample NCBI legacy Blast result
-		blastFile = new File("data/test/blastp.xml");
+    blastFile = new File("data/test/blastp.xml");
+    blastFile_simple = new File("data/test/blastp_simple.xml");
 		// setup a temp file (will be deleted in tearDownAfterClass())
 		tmpFile = File.createTempFile("blastTest", ".xml");
 		// setup a file filter
-		filterFile = new File("data/test/filter1.xml");
+    filterFile = new File("data/test/filter1.xml");
+    featureFilterFile = new File("data/test/filter2.xml");
 		// setup an NCBI Blast Loader (XML)
 		ncbiBlastLoader = SerializerSystemFactory.getLoaderInstance(SerializerSystemFactory.NCBI_LOADER);
 		// setup an NCBI Blast Writer (XML)
@@ -190,4 +197,41 @@ public class TestFilterSystem {
 		assertNotNull(boDest);
 		assertTrue(boDest.getIteration(0).countHit()==15);
 	}
+	private FeatureTable makeFakeFeatureTable(){
+	  FeatureTable ft;
+	  Feature      feat;
+	  
+	  ft = FeatureSystem.getFeatureTableFactory().getFTInstance();
+	  
+	  feat = FeatureSystem.getFeatureTableFactory().getFInstance();
+	  
+	  feat.setKey("source");
+	  feat.setFrom(1);
+	  feat.setTo(269);
+	  feat.setStrand(Feature.PLUS_STRAND);
+	  feat.addQualifier("organism","human");
+	  
+	  ft.addFeature(feat);
+	  return ft;
+	}
+  @Test
+  public void testFeatureFilter() {
+    // read NCBI XML blast file
+    SROutput bo = ncbiBlastLoader.load(blastFile_simple);
+    assertNotNull(bo);
+    assertTrue(bo.getIteration(0).countHit()==2);
+    
+    bo.getIteration(0).getHit(0).getHsp(0).setFeatures(makeFakeFeatureTable());
+
+    // load the filter from a file
+    BFilter filter = FilterSystemConfigurator.getSerializer().load(FilterSystemConfigurator.getFilterableModel(), featureFilterFile);
+
+    // apply the filter on the data
+    SROutput boDest = filter.execute(bo);
+    
+    // we must have a single hit
+    assertNotNull(boDest);
+    
+    assertTrue(boDest.getIteration(0).countHit()==1);
+  }	
 }
