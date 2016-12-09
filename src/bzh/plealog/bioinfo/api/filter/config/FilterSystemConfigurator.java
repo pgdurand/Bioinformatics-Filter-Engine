@@ -76,14 +76,14 @@ public class FilterSystemConfigurator {
    * Set the filterable data model on which the Filtering system can be applied.
    * @param filterableModel a BDataAccessors instance
    * */
-	private static void setFilterableModel(BDataAccessors filterableModel) {
+	public static void setFilterableModel(BDataAccessors filterableModel) {
 		filterableModel_ = filterableModel;
 	}
 	/**
 	 * Set the filter factory to use to create new filters.
 	 * @param bff a BFilterFactory instance
 	 * */
-	private static void setFilterFactory(BFilterFactory bff){
+	public static void setFilterFactory(BFilterFactory bff){
 		if (bff==null)
 			return;
 		filterFactory_ = bff;
@@ -100,7 +100,7 @@ public class FilterSystemConfigurator {
    * Return the rule factory to use to create new rules.
    * @param rff a BRuleFactory instance
    * */
-	private static void setRuleFactory(BRuleFactory rff){
+	public static void setRuleFactory(BRuleFactory rff){
 		if (rff==null)
 			return;
 		ruleFactory_ = rff;
@@ -123,7 +123,7 @@ public class FilterSystemConfigurator {
    * Set the IO to use to save and load filters.
    * @param s a FilterSerializer instance
    * */
-	private static void setSerializer(FilterSerializer s){
+	public static void setSerializer(FilterSerializer s){
 		if (s==null)
 			return;
 		serializer_ = s;
@@ -139,7 +139,7 @@ public class FilterSystemConfigurator {
    * Set the Rich SearchResult factory to use to create SROuptut objects.
    * @param bf a SRFactory instance
    * */
-	private static void setSRFactory(SRFactory bf){
+	public static void setSRFactory(SRFactory bf){
 		if (bf==null)
 			return;
 		_boFactory = bf;
