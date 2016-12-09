@@ -85,4 +85,8 @@ public interface BDataAccessors extends BOperatorAccessors{
 	 */
 	public BAccessorEntry getAccessorEntry(String visibleName);
 	
+	/**
+	 * Add a BAccessorEntry.
+	 */
+	public void addAccessorEntry(BAccessorEntry entry);
 }
