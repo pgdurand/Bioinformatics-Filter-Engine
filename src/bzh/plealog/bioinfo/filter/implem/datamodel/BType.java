@@ -129,9 +129,19 @@ public class BType implements DGMType {
     };
   }
 
+  /**
+   * Implementation of DGMType interface
+   */
+  public void addAttribute(DGMAttribute attr){
+    String name = attr.getName();
+    if (_attributes.containsKey(name)){
+      _attributes.remove(name);
+    }
+    _attributes.put(attr.getName(), attr);
+  }
+
   public String toString(){
     return (getName());
   }
-
 
 }
