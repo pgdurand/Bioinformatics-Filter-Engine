@@ -140,6 +140,12 @@ public class BGUtils {
       _logger.warning("Unable to invoke method "+methodName+" for "+objectType+":"+e);
     }
     return ret;
-
+  }
+  
+  public static void addAccessor(String accessorName, String accessor){
+    if (_attrAccessors.containsKey(accessorName)){
+      _attrAccessors.remove(accessorName);
+    }
+    _attrAccessors.put(accessorName, accessor);
   }
 }
