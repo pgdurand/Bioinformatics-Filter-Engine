@@ -34,7 +34,6 @@ import org.junit.Test;
 import bzh.plealog.bioinfo.api.core.config.CoreSystemConfigurator;
 import bzh.plealog.bioinfo.api.data.feature.Feature;
 import bzh.plealog.bioinfo.api.data.feature.FeatureTable;
-import bzh.plealog.bioinfo.api.data.feature.utils.FeatureSystem;
 import bzh.plealog.bioinfo.api.data.searchresult.SROutput;
 import bzh.plealog.bioinfo.api.data.searchresult.io.SRLoader;
 import bzh.plealog.bioinfo.api.data.searchresult.io.SRWriter;
@@ -201,9 +200,9 @@ public class TestFilterSystem {
 	  FeatureTable ft;
 	  Feature      feat;
 	  
-	  ft = FeatureSystem.getFeatureTableFactory().getFTInstance();
+	  ft = CoreSystemConfigurator.getFeatureTableFactory().getFTInstance();
 	  
-	  feat = FeatureSystem.getFeatureTableFactory().getFInstance();
+	  feat = CoreSystemConfigurator.getFeatureTableFactory().getFInstance();
 	  
 	  feat.setKey("source");
 	  feat.setFrom(1);
