@@ -38,7 +38,7 @@ public class BGLink implements HDGLink {
 	/**
 	 * Implementation of HDGLink interface.
 	 * 
-	 * @see com.plealog.hge.api.hypergraph.HDGLink#getVertex()
+	 * @see bzh.plealog.hge.api.hypergraph.HDGLink#getVertex()
 	 */
 	public HDGVertex getVertex() {
 		return _vertex;
@@ -47,7 +47,7 @@ public class BGLink implements HDGLink {
 	/**
 	 * Implementation of HDGLink interface.
 	 * 
-	 * @see com.plealog.hge.api.hypergraph.HDGLink#getHyperEdge()
+	 * @see bzh.plealog.hge.api.hypergraph.HDGLink#getHyperEdge()
 	 */
 	public HDGHyperEdge getHyperEdge() {
 		return _edge;
@@ -56,7 +56,7 @@ public class BGLink implements HDGLink {
 	/**
 	 * Implementation of HDGLink interface.
 	 * 
-	 * @see com.plealog.hge.api.hypergraph.HDGLink#getOrientation()
+	 * @see bzh.plealog.hge.api.hypergraph.HDGLink#getOrientation()
 	 */
 	public int getOrientation() {
 		return DGMLink.BOTH;

@@ -31,7 +31,7 @@ public class BGHyperEdgeFactory implements HDGHyperEdgeFactory{
 	/**
 	 * Implementation of HDGHyperEdgeFactory interface.
 	 * 
-	 * @see com.plealog.hge.api.hypergraph.HDGHyperEdgeFactory#createHDGEdge(List)
+	 * @see bzh.plealog.hge.api.hypergraph.HDGHyperEdgeFactory#createHDGEdge(List)
 	 */ 
     public HDGHyperEdge createHDGEdge(List<HDGVertex> vertices){
         return new BGHyperEdge();
