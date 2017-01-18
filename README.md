@@ -2,9 +2,13 @@
 
 [![License](https://img.shields.io/badge/license-Affero%20GPL%203.0-blue.svg)](https://www.gnu.org/licenses/agpl-3.0.txt)
 
-##Introduction
+##What is a filter?
 
-This package contains the data filtering library of [BLAST Filter Tool](https://github.com/pgdurand/BLAST-Filter-Tool). It contains the data models to represent [NCBI BLAST](http://blast.ncbi.nlm.nih.gov/Blast.cgi) data and Filters (e.g. *queries*) using hyper-graphs. Indeed, this filtering tool is a concrete implementation of the [Hyper-Graph Explorer](http://) applied on BLAST data. 
+A filter is made of some rules, each of them being on constraint applied on the data contained in a BLAST result file. This library is capable of reading legacy NCBI XML file (-outfmt 5 argument from BLAST+; -m 7 for legacy BLAST) and creating an object-based data model in memory. This model lets you access the many data fields (Hit ID, alignment length, e-value, scores, etc.) of a BLAST result. So, you use a filter to select relevant hits using your own constraints.
+
+##About this project
+
+This package contains the data filtering library of [BLAST Filter Tool](https://github.com/pgdurand/BLAST-Filter-Tool). It contains the data models to represent [NCBI BLAST results](http://blast.ncbi.nlm.nih.gov/Blast.cgi) and Filters (e.g. *queries*) using hyper-graphs. Indeed, this filtering tool is a concrete implementation of the [Hyper-Graph Explorer](https://github.com/pgdurand/Hyper-Graph-Explorer) applied on BLAST data. 
 
 ##Requirements
 
@@ -14,10 +18,7 @@ Use a [Java Virtual Machine](http://www.oracle.com/technetwork/java/javase/downl
 
 ##Library uses
 
-Since this package is a library, its primary purpose targets a use within other softwares. You can see how to use the library by having a look at:
-
-* "test" package in this project: it contains sample sources codes; "TestFilterSystem.java" is of particular interest
-* [Blast Filter Tool](https://github.com/pgdurand/BLAST-Filter-Tool) source code: a full example of a running application relying on this Filtering Engine
+See [Wiki](https://github.com/pgdurand/Bioinformatics-Filter-Engine/wiki).
 
 ##License and dependencies
 
