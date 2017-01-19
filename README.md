@@ -5,7 +5,7 @@
 
 ##What is a filter?
 
-A filter is made of some rules, each of them being on constraint applied on the data contained in a BLAST result file. This library is capable of reading legacy NCBI XML file (-outfmt 5 argument from BLAST+; -m 7 for legacy BLAST) and creating an object-based data model in memory. This model lets you access the many data fields (Hit ID, alignment length, e-value, scores, etc.) of a BLAST result. So, you use a filter to select relevant hits using your own constraints.
+A filter is made of some rules, each of them being a constraint applied on the data contained in a BLAST result file. This library is capable of reading legacy NCBI XML file (-outfmt 5 argument from BLAST+; -m 7 for legacy BLAST) and creating an object-based data model in memory. This model lets you access the many data fields (Hit ID, alignment length, e-value, scores, etc.) of a BLAST result. So, you use a filter to select relevant hits using your own constraints.
 
 ##About this project
 
