@@ -114,6 +114,8 @@
     <header>
       <![CDATA[Plealog Bioinformatics Filter API - ${pbc.LibVersion}]]></header>
     <link href="https://docs.oracle.com/javase/7/docs/api/"/>
+    <link href="https://pgdurand.github.io/Bioinformatics-Core-API/api/"/>
+
     <!-- arg value="-Xdoclint:reference"/ -->
   </javadoc>
 </target>
