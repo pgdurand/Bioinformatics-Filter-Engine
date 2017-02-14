@@ -24,6 +24,7 @@ import java.util.Iterator;
 import bzh.plealog.bioinfo.api.filter.BFilter;
 import bzh.plealog.bioinfo.api.filter.BOperatorAccessors;
 import bzh.plealog.bioinfo.api.filter.BRule;
+import bzh.plealog.bioinfo.api.filter.config.FilterSystemConfigurator;
 import bzh.plealog.bioinfo.io.filter.BFilterIO;
 import bzh.plealog.bioinfo.io.filter.BRuleIO;
 import bzh.plealog.bioinfo.io.filter.FilterSerializer;
@@ -67,7 +68,7 @@ public class FilterSerializerImplem implements FilterSerializer{
 		BFilter         filter=null;
 		
 		try(FileInputStream fis = new FileInputStream(file);) {
-			filter = new BFilterImplem(fModel, (BFilterIO) streamer.fromXML(fis));
+		  filter = FilterSystemConfigurator.getFilterFactory().createFilter(fModel, (BFilterIO) streamer.fromXML(fis));
 			handleAccessorRenaming(filter);
 		} catch (Exception e) {
 			throw new FilterSerializerException("Unable to load BFilter from: "+

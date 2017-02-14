@@ -119,6 +119,11 @@ public class BFilterImplem implements BFilter {
     setName(filterName);
   }
 
+  public BFilterImplem(BFilterImplem src){
+    this( src.filterModel_, src.bGraphModel_);
+    copy(src);
+        
+  }
   public Object clone(){
     BFilterImplem filter = new BFilterImplem(filterModel_);
     filter.copy(this);
