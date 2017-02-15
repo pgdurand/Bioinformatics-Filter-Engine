@@ -1,0 +1,23 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>feature</name>
+  <description>no description</description>
+  <exclusive>true</exclusive>
+  <rules>
+    <BRule>
+      <accessor>Feature: type</accessor>
+      <operator>==</operator>
+      <value class="string">Variant</value>
+    </BRule>
+    <BRule>
+      <accessor>Feature: Qualifier name</accessor>
+      <operator>==</operator>
+      <value class="string">Clinical</value>
+    </BRule>
+    <BRule>
+      <accessor>Feature: Qualifier value</accessor>
+      <operator>::</operator>
+      <value class="string">pathogen</value>
+    </BRule>
+  </rules>
+</BFilter>

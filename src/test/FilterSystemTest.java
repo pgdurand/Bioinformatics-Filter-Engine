@@ -55,6 +55,8 @@ public class FilterSystemTest {
 	private static File            tmpFile;
   private static File            filterFile;
   private static File            featureFilterFile;
+  private static File            sourceQualifierFilterFile;
+  private static File            varQualifierFilterFile;
 	private static SRLoader         ncbiBlastLoader;
 	private static SRWriter         ncbiBlastWriter;
 	private static HashSet<String> hitIDs;
@@ -77,6 +79,8 @@ public class FilterSystemTest {
 		// setup a file filter
     filterFile = new File("data/test/filter1.xml");
     featureFilterFile = new File("data/test/filter2.xml");
+    sourceQualifierFilterFile = new File("data/test/filter3.xml");
+    varQualifierFilterFile = new File("data/test/filter4.xml");
 		// setup an NCBI Blast Loader (XML)
 		ncbiBlastLoader = SerializerSystemFactory.getLoaderInstance(SerializerSystemFactory.NCBI_LOADER);
 		// setup an NCBI Blast Writer (XML)
@@ -201,18 +205,47 @@ public class FilterSystemTest {
 	  Feature      feat;
 	  
 	  ft = CoreSystemConfigurator.getFeatureTableFactory().getFTInstance();
-	  
+
+	  // Source feature
 	  feat = CoreSystemConfigurator.getFeatureTableFactory().getFInstance();
-	  
 	  feat.setKey("source");
 	  feat.setFrom(1);
 	  feat.setTo(269);
 	  feat.setStrand(Feature.PLUS_STRAND);
 	  feat.addQualifier("organism","human");
-	  
 	  ft.addFeature(feat);
+
+	  // Variant feature
+    feat = CoreSystemConfigurator.getFeatureTableFactory().getFInstance();
+    feat.setKey("Variant");
+    feat.setFrom(25);
+    feat.setTo(25);
+    feat.setStrand(Feature.PLUS_STRAND);
+    feat.addQualifier("Consequence","missense_variant");
+    feat.addQualifier("Clinical","uncertain significance; likely pathogenic");
+    ft.addFeature(feat);
+
 	  return ft;
 	}
+	
+	 private FeatureTable makeFakeFeatureTable2(){
+	    FeatureTable ft;
+	    Feature      feat;
+	    
+	    ft = CoreSystemConfigurator.getFeatureTableFactory().getFTInstance();
+	    // Variant feature
+	    feat = CoreSystemConfigurator.getFeatureTableFactory().getFInstance();
+	    feat.setKey("Variant");
+	    feat.setFrom(25);
+	    feat.setTo(25);
+	    feat.setStrand(Feature.PLUS_STRAND);
+	    feat.addQualifier("Consequence","missense_variant");
+	    feat.addQualifier("Clinical","uncertain significance; likely pathogenic");
+	    ft.addFeature(feat);
+
+	    return ft;
+	  }
+
   @Test
   public void testFeatureFilter() {
     // read NCBI XML blast file
@@ -233,4 +266,52 @@ public class FilterSystemTest {
     
     assertTrue(boDest.getIteration(0).countHit()==1);
   }	
+  
+  @Test
+  public void testSourceQualifierFilter() {
+    // read NCBI XML blast file
+    SROutput bo = ncbiBlastLoader.load(blastFile_simple);
+    assertNotNull(bo);
+    assertTrue(bo.getIteration(0).countHit()==2);
+    
+    bo.getIteration(0).getHit(0).getHsp(0).setFeatures(makeFakeFeatureTable());
+
+    // load the filter from a file
+    BFilter filter = FilterSystemConfigurator.getSerializer().load(FilterSystemConfigurator.getFilterableModel(), sourceQualifierFilterFile);
+
+    // apply the filter on the data
+    SROutput boDest = filter.execute(bo);
+    
+    // we must have a single hit
+    assertNotNull(boDest);
+    
+    assertTrue(boDest.getIteration(0).countHit()==1);
+  } 
+  
+  @Test
+  public void testVariantQualifierFilter() {
+    // read NCBI XML blast file
+    SROutput bo = ncbiBlastLoader.load(blastFile);
+    assertNotNull(bo);
+    assertTrue(bo.getIteration(0).countHit()==19);
+    
+    bo.getIteration(0).getHit(0).getHsp(0).setFeatures(makeFakeFeatureTable());
+    bo.getIteration(0).getHit(5).getHsp(0).setFeatures(makeFakeFeatureTable2());
+    bo.getIteration(0).getHit(15).getHsp(0).setFeatures(makeFakeFeatureTable2());
+
+    // load the filter from a file
+    BFilter filter = FilterSystemConfigurator.getSerializer().load(FilterSystemConfigurator.getFilterableModel(), varQualifierFilterFile);
+
+    // apply the filter on the data
+    SROutput boDest = filter.execute(bo);
+    
+    // we must have a single hit
+    assertNotNull(boDest);
+    
+    assertTrue(boDest.getIteration(0).countHit()==3);
+    
+    assertTrue(bo.getIteration(0).getHit(0).getHitId().equals(boDest.getIteration(0).getHit(0).getHitId()));
+    assertTrue(bo.getIteration(0).getHit(5).getHitId().equals(boDest.getIteration(0).getHit(1).getHitId()));
+    assertTrue(bo.getIteration(0).getHit(15).getHitId().equals(boDest.getIteration(0).getHit(2).getHitId()));
+  } 
 }
