@@ -49,7 +49,7 @@ import bzh.plealog.bioinfo.io.searchresult.SerializerSystemFactory;
  * 
  * @author Patrick G. Durand
  */
-public class TestFilterSystem {
+public class FilterSystemTest {
   private static File            blastFile;
   private static File            blastFile_simple;
 	private static File            tmpFile;

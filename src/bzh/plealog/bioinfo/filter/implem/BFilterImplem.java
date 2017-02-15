@@ -106,7 +106,8 @@ public class BFilterImplem implements BFilter {
 
     Iterator<BRuleIO> iter = filter.getRules().iterator();
     while(iter.hasNext()){
-      rules_.add(new BRuleImplem(iter.next()));
+      BRuleIO bio = iter.next();
+      rules_.add(FilterSystemConfigurator.getRuleFactory().createRule(bio.getAccessor(), bio.getOperator(), bio.getValue()));
     }
     
   }
