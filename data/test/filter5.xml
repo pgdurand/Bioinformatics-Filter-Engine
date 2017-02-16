@@ -1,0 +1,13 @@
+<BFilter>
+  <xmlVersion>1</xmlVersion>
+  <name>feature</name>
+  <description>no description</description>
+  <exclusive>true</exclusive>
+  <rules>
+    <BRule>
+      <accessor>Feature: type</accessor>
+      <operator>==</operator>
+      <value class="string">Variant</value>
+    </BRule>
+  </rules>
+</BFilter>
