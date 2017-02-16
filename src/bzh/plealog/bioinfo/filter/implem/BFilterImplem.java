@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import bzh.plealog.bioinfo.api.data.searchresult.SRHit;
@@ -59,7 +60,7 @@ public class BFilterImplem implements BFilter {
   private String           description_;
   private boolean          exclusive_;
   private ArrayList<BRule> rules_;
-  private HGEQuery         query_;
+  protected HGEQuery         query_;
   private BGDataModel      bGraphModel_;
   private BIterationSorter iterComparator;
   private BHitSorter       hitComparator;
@@ -144,35 +145,51 @@ public class BFilterImplem implements BFilter {
     }
   }
 
-  private void formatStdAccessor(StringBuffer szBuf, BRule rule, 
-      String hitVar, String hspVar, String featVar, String qualVar) throws BFilterException{
+  /**
+   * Return a correspondence between query variable names and data types.
+   */
+  protected Map<String, String> getTypeToVariable(){
+    Hashtable<String, String> mapper = new Hashtable<>();
+    mapper.put(BGDataModel.SRHIT_VERTEX_TYPE, BH_VAR);
+    mapper.put(BGDataModel.SRHSP_VERTEX_TYPE, BS_VAR);
+    mapper.put(BGDataModel.FEAT_VERTEX_TYPE, FT_VAR);
+    mapper.put(BGDataModel.QUALIFIER_VERTEX_TYPE, QL_VAR);
+    return mapper;
+  }
+  
+  /**
+   * Format a standard data accessor as an HQL declaration.
+   * 
+   * @param szBuf accessor description will be added in this buffer
+   * @param rule rule to format as a HQL declaration.
+   */
+  private void formatStdAccessor(StringBuffer szBuf, BRule rule) throws BFilterException{
     BAccessorEntry entry;
     String         name, objType;
 
+    //get the name of the data accessor
     name = rule.getAccessor();
+    // from the data model, get the description entry
     entry = filterModel_.getAccessorEntry(name);
+    // then get the data type
     objType = entry.getObjectType();
-    if(objType.equals(BGDataModel.SRHIT_VERTEX_TYPE)){
-      szBuf.append(hitVar);
-    }
-    else if(objType.equals(BGDataModel.SRHSP_VERTEX_TYPE)){
-      szBuf.append(hspVar);
-    }
-    else if(objType.equals(BGDataModel.FEAT_VERTEX_TYPE)){
-      szBuf.append(featVar);
-    }
-    else if(objType.equals(BGDataModel.QUALIFIER_VERTEX_TYPE)){
-      szBuf.append(qualVar);
-    }
-    else{
+    // and the corresponding query variable name
+    name = getTypeToVariable().get(objType);
+    if (name==null){
       throw new BFilterException("Object type "+objType+" is not supported!");
     }
+    szBuf.append(name);
     szBuf.append(".");
     szBuf.append(entry.getAccessorName());
   }
 
-  private void formatFuncAccessor(StringBuffer szBuf, BRule rule, 
-      String hitVar, String hspVar, String featVar, String qualVar) throws BFilterException{
+  /**
+   * Format a standard function as an HQL declaration.
+   * 
+   * @param szBuf function description will be added in this buffer
+   * @param rule rule to format as a HQL declaration.
+   */
+  private void formatFuncAccessor(StringBuffer szBuf, BRule rule) throws BFilterException{
     BAccessorEntry entry;
     String         name, objType;
 
@@ -181,23 +198,15 @@ public class BFilterImplem implements BFilter {
     szBuf.append(entry.getAccessorName());
     szBuf.append("(");
     objType = entry.getObjectType();
-    if(objType.equals(BGDataModel.SRHIT_VERTEX_TYPE)){
-      szBuf.append(hitVar);
-    }
-    else if(objType.equals(BGDataModel.SRHSP_VERTEX_TYPE)){
-      szBuf.append(hspVar);
-    }
-    else if(objType.equals(BGDataModel.FEAT_VERTEX_TYPE)){
-      szBuf.append(featVar);
-    }
-    else if(objType.equals(BGDataModel.QUALIFIER_VERTEX_TYPE)){
-      szBuf.append(qualVar);
-    }
-    else{
+    // and the corresponding query variable name
+    name = getTypeToVariable().get(objType);
+    if (name==null){
       throw new BFilterException("Object type "+objType+" is not supported!");
     }
+    szBuf.append(name);
     szBuf.append(")");
   }
+
   private void appendAtomicValue(StringBuffer szBuf, Object value, int dataType){
     switch(dataType){
       case DGMAttribute.DT_STRING:
@@ -215,23 +224,21 @@ public class BFilterImplem implements BFilter {
         break;
     }
   }
-  private void formatStdRule(StringBuffer szBuf, BRule rule, String hitVar, String hspVar, 
-      String featVar, String qualVar) throws BFilterException{
+  private void formatStdRule(StringBuffer szBuf, BRule rule) throws BFilterException{
     BAccessorEntry entry;
     String         name;
     name = rule.getAccessor();
     entry = filterModel_.getAccessorEntry(name);
     if (entry.getFunctionAccessor()){
-      formatFuncAccessor(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatFuncAccessor(szBuf, rule);
     }
     else{
-      formatStdAccessor(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatStdAccessor(szBuf, rule);
     }
     szBuf.append(rule.getOperator());
     appendAtomicValue(szBuf, rule.getValue(), entry.getDataType());
   }
-  private void formatRangeRule(StringBuffer szBuf, BRule rule, String hitVar, String hspVar, 
-      String featVar, String qualVar) throws BFilterException{
+  private void formatRangeRule(StringBuffer szBuf, BRule rule) throws BFilterException{
     BAccessorEntry entry;
     String         name;
     boolean        inclusive;
@@ -241,26 +248,25 @@ public class BFilterImplem implements BFilter {
     entry = filterModel_.getAccessorEntry(name);
     inclusive = rule.getOperator().equals(BOperatorAccessors.OPE_InRangeInclusive);
     if (entry.getFunctionAccessor()){
-      formatFuncAccessor(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatFuncAccessor(szBuf, rule);
     }
     else{
-      formatStdAccessor(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatStdAccessor(szBuf, rule);
     }
     szBuf.append(inclusive?">=":">");
     appendAtomicValue(szBuf, ((List<?>)rule.getValue()).get(0), entry.getDataType());
     szBuf.append(" and ");
     if (entry.getFunctionAccessor()){
-      formatFuncAccessor(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatFuncAccessor(szBuf, rule);
     }
     else{
-      formatStdAccessor(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatStdAccessor(szBuf, rule);
     }
     szBuf.append(inclusive?"<=":"<");
     appendAtomicValue(szBuf, ((List<?>)rule.getValue()).get(1), entry.getDataType());
     szBuf.append(")");
   }
-  private void formatStrInSetRule(StringBuffer szBuf, BRule rule, String hitVar, String hspVar, 
-      String featVar, String qualVar) throws BFilterException{
+  private void formatStrInSetRule(StringBuffer szBuf, BRule rule) throws BFilterException{
     BAccessorEntry entry;
     String         name;
     Set<?>         values;
@@ -273,10 +279,10 @@ public class BFilterImplem implements BFilter {
     name = rule.getAccessor();
     entry = filterModel_.getAccessorEntry(name);
     if (entry.getFunctionAccessor()){
-      formatFuncAccessor(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatFuncAccessor(szBuf, rule);
     }
     else{
-      formatStdAccessor(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatStdAccessor(szBuf, rule);
     }
 
     try {
@@ -297,8 +303,14 @@ public class BFilterImplem implements BFilter {
     }
     szBuf.append("})");
   }
-  private String formatRule(BRule rule, String hitVar, String hspVar, 
-      String featVar, String qualVar) throws BFilterException{
+  /**
+   * Format a rule as a HQL declaration.
+   * 
+   * @param rule the rule to format
+   * 
+   * @return an well-formed Hyper-Graph Query language constraint declaration.
+   */
+  protected String formatRule(BRule rule) throws BFilterException{
     StringBuffer   szBuf;
     String         ope;
 
@@ -306,24 +318,22 @@ public class BFilterImplem implements BFilter {
     ope = rule.getOperator();
     if (ope.equals(BOperatorAccessors.OPE_FUNC_StrInSet)||ope.equals(BOperatorAccessors.OPE_FUNC_StrNotInSet)||
         ope.equals(BOperatorAccessors.OPE_FUNC_LongInSet)||ope.equals(BOperatorAccessors.OPE_FUNC_LongNotInSet)){
-      formatStrInSetRule(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatStrInSetRule(szBuf, rule);
     }
     else if (ope.equals(BOperatorAccessors.OPE_InRangeExclusive)||ope.equals(BOperatorAccessors.OPE_InRangeInclusive)){
-      formatRangeRule(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatRangeRule(szBuf, rule);
     }
     else{
-      formatStdRule(szBuf, rule, hitVar, hspVar, featVar, qualVar);
+      formatStdRule(szBuf, rule);
     }
     return szBuf.toString();
   }
-  private void addDecl(HGEQuery query, String decl){
-    query.addDeclaration(decl);
-  }
+
   /**
    * Utility method looking at all the rules of the Filter to figure out
    * if we have to filter features. Return true in this case, false otherwise.
    */
-  private boolean hasToFilterFeatures(){
+  protected boolean hasToFilterFeatures(){
     int            i, size;
     BRule          rule;
     BAccessorEntry entry;
@@ -342,7 +352,7 @@ public class BFilterImplem implements BFilter {
    * Utility method looking at all the rules of the Filter to figure out
    * if we have to filter features. Return true in this case, false otherwise.
    */
-  private boolean hasToFilterQualifiers(){
+  protected boolean hasToFilterQualifiers(){
     int            i, size;
     BRule          rule;
     BAccessorEntry entry;
@@ -372,26 +382,26 @@ public class BFilterImplem implements BFilter {
     filterQual = hasToFilterQualifiers();
     query = HGEManager.newHQuery();
     //defines the skeleton of the filter: a graph
-    addDecl(query, GR_VAR+BO_VAR+"-"+BI_VAR+IN_VAR+BGDataModel.CONTAINS_ITERATION_EDGE_TYPE+"\"");   
-    addDecl(query, E2_VAR+":"+BI_VAR+"-"+BH_VAR+IN_VAR+BGDataModel.CONTAINS_HIT_EDGE_TYPE+"\"");   
-    addDecl(query, E3_VAR+":"+BH_VAR+"-"+BS_VAR+IN_VAR+BGDataModel.CONTAINS_HSP_EDGE_TYPE+"\"");   
+    query.addDeclaration(GR_VAR+BO_VAR+"-"+BI_VAR+IN_VAR+BGDataModel.CONTAINS_ITERATION_EDGE_TYPE+"\"");   
+    query.addDeclaration(E2_VAR+":"+BI_VAR+"-"+BH_VAR+IN_VAR+BGDataModel.CONTAINS_HIT_EDGE_TYPE+"\"");   
+    query.addDeclaration(E3_VAR+":"+BH_VAR+"-"+BS_VAR+IN_VAR+BGDataModel.CONTAINS_HSP_EDGE_TYPE+"\"");   
     if (filterFeat || filterQual)
-      addDecl(query, E4_VAR+":"+BS_VAR+"-"+FT_VAR+IN_VAR+BGDataModel.CONTAINS_FEAT_EDGE_TYPE+"\"");   
+      query.addDeclaration(E4_VAR+":"+BS_VAR+"-"+FT_VAR+IN_VAR+BGDataModel.CONTAINS_FEAT_EDGE_TYPE+"\"");   
     if (filterQual)
-      addDecl(query, E5_VAR+":"+FT_VAR+"-"+QL_VAR+IN_VAR+BGDataModel.CONTAINS_QUALIFIER_EDGE_TYPE+"\"");   
-    addDecl(query, BO_VAR+IN_VAR+BGDataModel.SROUTPUT_VERTEX_TYPE+"\"");   
-    addDecl(query, BI_VAR+IN_VAR+BGDataModel.SRITERATION_VERTEX_TYPE+"\"");
-    addDecl(query, BH_VAR+IN_VAR+BGDataModel.SRHIT_VERTEX_TYPE+"\"");
-    addDecl(query, BS_VAR+IN_VAR+BGDataModel.SRHSP_VERTEX_TYPE+"\"");
+      query.addDeclaration(E5_VAR+":"+FT_VAR+"-"+QL_VAR+IN_VAR+BGDataModel.CONTAINS_QUALIFIER_EDGE_TYPE+"\"");   
+    query.addDeclaration(BO_VAR+IN_VAR+BGDataModel.SROUTPUT_VERTEX_TYPE+"\"");   
+    query.addDeclaration(BI_VAR+IN_VAR+BGDataModel.SRITERATION_VERTEX_TYPE+"\"");
+    query.addDeclaration(BH_VAR+IN_VAR+BGDataModel.SRHIT_VERTEX_TYPE+"\"");
+    query.addDeclaration(BS_VAR+IN_VAR+BGDataModel.SRHSP_VERTEX_TYPE+"\"");
     if (filterFeat || filterQual)
-      addDecl(query, FT_VAR+IN_VAR+BGDataModel.FEAT_VERTEX_TYPE+"\"");
+      query.addDeclaration(FT_VAR+IN_VAR+BGDataModel.FEAT_VERTEX_TYPE+"\"");
     if (filterQual)
-      addDecl(query, QL_VAR+IN_VAR+BGDataModel.QUALIFIER_VERTEX_TYPE+"\"");
+      query.addDeclaration(QL_VAR+IN_VAR+BGDataModel.QUALIFIER_VERTEX_TYPE+"\"");
     //adds constraints
     buf = new StringBuffer();
     size = rules_.size();
     for(i=0;i<size;i++){
-      buf.append(formatRule((BRule) rules_.get(i), BH_VAR, BS_VAR, FT_VAR, QL_VAR));
+      buf.append(formatRule((BRule) rules_.get(i)));
       if ((i+1)<size){
         buf.append(exclusive_?" and ":" or ");
       }
@@ -545,21 +555,26 @@ public class BFilterImplem implements BFilter {
     long tim = System.currentTimeMillis();
     if (query_==null)
       compile();
-    if (verbose_)
+    if (verbose_){
       System.out.println(String.format("Compile time : %d ms", (System.currentTimeMillis()-tim)));
+    }
     try{
       tim = System.currentTimeMillis();
       graph = new BGraph(bo, bGraphModel_);
-      if (verbose_)
+      if (verbose_){
         System.out.println(String.format("Graph build time : %d ms", (System.currentTimeMillis()-tim)));
+      }
       tim = System.currentTimeMillis();
       query_.setVerboseMode(verbose_);
       rSet=query_.execute(bGraphModel_, graph);
-      if (verbose_)
+      if (verbose_){
         System.out.println(String.format("Execute time : %d ms", (System.currentTimeMillis()-tim)));
+      }
       tim = System.currentTimeMillis();
       result = prepareResult(rSet);
-      if (verbose_)System.out.println(String.format("Prepare result time : %d ms", (System.currentTimeMillis()-tim)));
+      if (verbose_){
+        System.out.println(String.format("Prepare result time : %d ms", (System.currentTimeMillis()-tim)));
+      }
     }
     catch(Exception ex){
       throw new BFilterException("Unable to filter data: "+ex.getMessage());
@@ -584,7 +599,7 @@ public class BFilterImplem implements BFilter {
     //has to be created using its factory which does not allow creating
     //a BRule with null attributes
     name = rule.getAccessor();
-    //patch for 2.5 release and above: some names have been updated
+    //patch for KoriBlast 2.5 release and above: some names have been updated
     if (name.equals("Feature type")){
       rule.setAccessor("Feature: type");
     }
@@ -610,7 +625,7 @@ public class BFilterImplem implements BFilter {
       throw new BFilterException("rule defines an invalid operator. Seen: "
           +ope+". Expected, one of: "+Arrays.asList(opes)+".");
 
-    //patch for 2.5 release and above: identity, positive and gap where set as long
+    //patch for KoriBlast 2.5 release and above: identity, positive and gap where set as long
     //instead of double. Following code added to reload old filters from disk
     if ((entry.getAccessorName().equals("identity") ||
         entry.getAccessorName().equals("positive") ||
