@@ -65,7 +65,8 @@ public class BFilterImplem implements BFilter {
   private BHitSorter       hitComparator;
   private BHspSorter       hspComparator;
   private BOperatorAccessors filterModel_;
-
+  private boolean verbose_;
+  
   protected static final String GR_VAR = "g1 as e1:";
   protected static final String E2_VAR = "e2";
   protected static final String E3_VAR = "e3";
@@ -541,13 +542,24 @@ public class BFilterImplem implements BFilter {
       return null;
     if (rules_.isEmpty())
       return null;
-
+    long tim = System.currentTimeMillis();
     if (query_==null)
       compile();
+    if (verbose_)
+      System.out.println(String.format("Compile time : %d ms", (System.currentTimeMillis()-tim)));
     try{
+      tim = System.currentTimeMillis();
       graph = new BGraph(bo, bGraphModel_);
+      if (verbose_)
+        System.out.println(String.format("Graph build time : %d ms", (System.currentTimeMillis()-tim)));
+      tim = System.currentTimeMillis();
+      query_.setVerboseMode(verbose_);
       rSet=query_.execute(bGraphModel_, graph);
+      if (verbose_)
+        System.out.println(String.format("Execute time : %d ms", (System.currentTimeMillis()-tim)));
+      tim = System.currentTimeMillis();
       result = prepareResult(rSet);
+      if (verbose_)System.out.println(String.format("Prepare result time : %d ms", (System.currentTimeMillis()-tim)));
     }
     catch(Exception ex){
       throw new BFilterException("Unable to filter data: "+ex.getMessage());
@@ -752,5 +764,9 @@ public class BFilterImplem implements BFilter {
       buf.append("empty");
     }
     return buf.toString();
+  }
+  
+  public void setVerboseMode(boolean verbose){
+    verbose_ = verbose;
   }
 }
