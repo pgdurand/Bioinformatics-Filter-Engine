@@ -17,6 +17,7 @@
 package bzh.plealog.bioinfo.filter.implem.datagraph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -58,8 +59,61 @@ public class BGraph extends Pseudograph implements HDataGraph{
   /**
    * Constructor of a BGraph.
    * 
-   * @param bo blast result from which to create the graph
-   * @param dgm the data model describing the blast result as a graph
+   * @param ft a FeatureTable from which to create the graph. 
+   * @param dgm the data model describing the Rich Search Result as a graph
+   */
+  public BGraph(FeatureTable ft, DataGraphModel dgm){
+    BGHyperEdge  edge;
+    BGVertex     vertex, vFT, vFeat, vQual;
+    
+    if (ft.features()==0)
+      return;
+
+    // create the root node of the graph
+    vertex = new BGVertex();
+    vertex.setData(ft);
+    vertex.setType(dgm.getVertexType(BGDataModel.FTABLE_VERTEX_TYPE));
+    vFT = vertex;
+    this.addVertex(vertex);
+
+    for(Feature feat : Collections.list(ft.enumFeatures())){
+      //creates vertex for Feature
+      vertex = new BGVertex();
+      vertex.setData(feat);
+      vertex.setType(dgm.getVertexType(BGDataModel.FEAT_VERTEX_TYPE));
+      vFeat = vertex;
+      this.addVertex(vertex);
+      //creates HyperEdge for relation
+      edge = new BGHyperEdge();
+      edge.setType(dgm.getHyperEdgeType(BGDataModel.HAS_FEAT_EDGE_TYPE));
+      this.addVertex(edge);
+      //link BHsp/Feature vertices through hyper edge
+      this.addEdge(vFT, edge);
+      this.addEdge(vFeat, edge);
+      //qualifiers ?
+      for(Qualifier qualifier : Collections.list(feat.enumQualifiers())){
+        //creates vertex for Qualifier
+        vertex = new BGVertex();
+        vertex.setData(qualifier);
+        vertex.setType(dgm.getVertexType(BGDataModel.QUALIFIER_VERTEX_TYPE));
+        vQual = vertex;
+        this.addVertex(vertex);
+        //creates HyperEdge for relation
+        edge = new BGHyperEdge();
+        edge.setType(dgm.getHyperEdgeType(BGDataModel.CONTAINS_QUALIFIER_EDGE_TYPE));
+        this.addVertex(edge);
+        //link Feature/Qualifier vertices through hyper edge
+        this.addEdge(vFeat, edge);
+        this.addEdge(vQual, edge);
+      }
+    }
+  }
+  
+  /**
+   * Constructor of a BGraph.
+   * 
+   * @param bo a Rich Search Result from which to create the graph
+   * @param dgm the data model describing the Rich Search Result as a graph
    */
   public BGraph(SROutput bo, DataGraphModel dgm){
     super();

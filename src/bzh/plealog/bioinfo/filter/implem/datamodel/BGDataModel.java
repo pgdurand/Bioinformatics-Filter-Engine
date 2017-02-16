@@ -31,6 +31,8 @@ import bzh.plealog.hge.api.hypergraph.HDGVertex;
 /**
  * This class implements DataGraphModel to model SROutput objects tree as a graph.
  * This constitutes the graph data model used to explore a SROutput with HGE system. 
+ * It also enables to only model a FeatureTable objects tree as a graph; and again
+ * that model can also be explored using HGE system.
  * 
  * @author Patrick G. Durand
  */
@@ -38,6 +40,7 @@ public class BGDataModel implements bzh.plealog.hge.api.datamodel.DataGraphModel
   protected Hashtable<String, DGMVertexType>     _vTypes;
   protected Hashtable<String, DGMHyperEdgeType>  _eTypes;
 
+  //SROutput vertices
   public static final String SROUTPUT_VERTEX_TYPE = "SROutput";
   public static final String SRITERATION_VERTEX_TYPE = "SRIteration";
   public static final String SRHIT_VERTEX_TYPE = "SRHit";
@@ -45,11 +48,18 @@ public class BGDataModel implements bzh.plealog.hge.api.datamodel.DataGraphModel
   public static final String FEAT_VERTEX_TYPE = "Feature";
   public static final String QUALIFIER_VERTEX_TYPE = "Qualifier";
 
+  //FeatureTable add-on vertex
+  public static final String FTABLE_VERTEX_TYPE = "FeatureTable";
+
+  //SROutput edges
   public static final String CONTAINS_ITERATION_EDGE_TYPE = "containsIteration";
   public static final String CONTAINS_HIT_EDGE_TYPE = "containsHit";
   public static final String CONTAINS_HSP_EDGE_TYPE = "containsHsp";
   public static final String CONTAINS_FEAT_EDGE_TYPE = "containsFeat";
   public static final String CONTAINS_QUALIFIER_EDGE_TYPE = "containsQualifier";
+
+  //FeatureTable add-on edge
+  public static final String HAS_FEAT_EDGE_TYPE = "hasFeature";
 
   public static final String DATA_MODEL_NAME = "BlastDataGraphModel";
 
@@ -64,9 +74,12 @@ public class BGDataModel implements bzh.plealog.hge.api.datamodel.DataGraphModel
     BHyperEdgeType eType;
     Hashtable<String, String> attributes;
 
-    vType = new BVertexType(SROUTPUT_VERTEX_TYPE, null);
+    vType = new BVertexType(FTABLE_VERTEX_TYPE, null);
     _vTypes.put(vType.getName(), vType);
 
+    vType = new BVertexType(SROUTPUT_VERTEX_TYPE, null);
+    _vTypes.put(vType.getName(), vType);
+    
     vType = new BVertexType(SRITERATION_VERTEX_TYPE, null);
     _vTypes.put(vType.getName(), vType);
 
@@ -170,6 +183,12 @@ public class BGDataModel implements bzh.plealog.hge.api.datamodel.DataGraphModel
     eType = new BHyperEdgeType(
         CONTAINS_FEAT_EDGE_TYPE, 
         (BVertexType) _vTypes.get(SRHSP_VERTEX_TYPE), 
+        (BVertexType) _vTypes.get(FEAT_VERTEX_TYPE), 
+        null);
+    _eTypes.put(eType.getName(), eType);
+    eType = new BHyperEdgeType(
+        HAS_FEAT_EDGE_TYPE, 
+        (BVertexType) _vTypes.get(FTABLE_VERTEX_TYPE), 
         (BVertexType) _vTypes.get(FEAT_VERTEX_TYPE), 
         null);
     _eTypes.put(eType.getName(), eType);
