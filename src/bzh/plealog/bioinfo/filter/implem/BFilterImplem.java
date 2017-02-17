@@ -60,13 +60,14 @@ public class BFilterImplem implements BFilter {
   private String           description_;
   private boolean          exclusive_;
   private ArrayList<BRule> rules_;
-  protected HGEQuery         query_;
+  private HGEQuery         query_;
   private BGDataModel      bGraphModel_;
   private BIterationSorter iterComparator;
   private BHitSorter       hitComparator;
   private BHspSorter       hspComparator;
   private BOperatorAccessors filterModel_;
   private boolean verbose_;
+  private Hashtable<String, String> mapper_;
   
   protected static final String GR_VAR = "g1 as e1:";
   protected static final String E2_VAR = "e2";
@@ -149,12 +150,15 @@ public class BFilterImplem implements BFilter {
    * Return a correspondence between query variable names and data types.
    */
   protected Map<String, String> getTypeToVariable(){
-    Hashtable<String, String> mapper = new Hashtable<>();
-    mapper.put(BGDataModel.SRHIT_VERTEX_TYPE, BH_VAR);
-    mapper.put(BGDataModel.SRHSP_VERTEX_TYPE, BS_VAR);
-    mapper.put(BGDataModel.FEAT_VERTEX_TYPE, FT_VAR);
-    mapper.put(BGDataModel.QUALIFIER_VERTEX_TYPE, QL_VAR);
-    return mapper;
+    if (mapper_!=null){
+      return mapper_;
+    }
+    mapper_ = new Hashtable<>();
+    mapper_.put(BGDataModel.SRHIT_VERTEX_TYPE, BH_VAR);
+    mapper_.put(BGDataModel.SRHSP_VERTEX_TYPE, BS_VAR);
+    mapper_.put(BGDataModel.FEAT_VERTEX_TYPE, FT_VAR);
+    mapper_.put(BGDataModel.QUALIFIER_VERTEX_TYPE, QL_VAR);
+    return mapper_;
   }
   
   /**
@@ -409,7 +413,7 @@ public class BFilterImplem implements BFilter {
     query.addConstraint(buf.toString());
     query.setReturnDistinct(false);
     query.setReturnVariables(BO_VAR+","+BI_VAR+","+BH_VAR+","+BS_VAR);
-    query_=query;
+    setQuery(query);
   }
 
   private SROutput getBOutput(SRFactory bf, SROutput src){
@@ -532,6 +536,12 @@ public class BFilterImplem implements BFilter {
   protected HGEQuery getQuery(){
     return query_;
   }
+  /**
+   * For internal use only.
+   */
+  protected void setQuery(HGEQuery query){
+    query_ = query;
+  }
 
   /**
    * For internal use only.
@@ -547,7 +557,7 @@ public class BFilterImplem implements BFilter {
     BGraph         graph;
     SROutput        result = null;
     Set<HGEResult> rSet;
-
+    
     if (bo==null)
       return null;
     if (rules_.isEmpty())
