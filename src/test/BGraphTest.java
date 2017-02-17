@@ -20,7 +20,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -38,6 +40,7 @@ import bzh.plealog.bioinfo.api.data.searchresult.SROutput;
 import bzh.plealog.bioinfo.filter.implem.datagraph.BGraph;
 import bzh.plealog.bioinfo.filter.implem.datamodel.BGDataModel;
 import bzh.plealog.bioinfo.io.searchresult.SerializerSystemFactory;
+import bzh.plealog.hge.api.hypergraph.HDGHyperEdge;
 import bzh.plealog.hge.api.hypergraph.HDGVertex;
 import bzh.plealog.hge.api.query.HGEManager;
 import bzh.plealog.hge.api.query.HGEQuery;
@@ -62,6 +65,28 @@ public class BGraphTest {
       "gi|13399662|pdb|1EVY|A"};
   private static HashSet<String> resultsQuery1 = new HashSet<>(Arrays.asList(res1));
   
+  private static HashSet<String> allIds = new HashSet<>(Arrays.asList(
+      "gi|11514194|pdb|1FX8|A",
+      "gi|20150315|pdb|1J4N|A",
+      "gi|39654847|pdb|1RC2|B",
+      "gi|13399662|pdb|1EVY|A",
+      "gi|134105082|pdb|2O9D|A",
+      "gi|83754265|pdb|2B6O|A",
+      "gi|21466057|pdb|1LDF|A",
+      "gi|82407721|pdb|2A9M|L",
+      "gi|11514550|pdb|1FQY|A",
+      "gi|134105084|pdb|2O9E|A",
+      "gi|85544225|pdb|2B5F|A",
+      "gi|85544014|pdb|1Z98|A",
+      "gi|49259096|pdb|1SOR|A",
+      "gi|83754991|pdb|2EVU|A",
+      "gi|134105085|pdb|2O9F|A",
+      "gi|88192744|pdb|2D57|A",
+      "gi|56967161|pdb|1XMX|A",
+      "gi|42543068|pdb|1NL0|L",
+      "gi|61680729|pdb|1YMG|A"));
+
+  private static Hashtable<String, Integer> allHspCount;
   @BeforeClass
   public static void setUpBeforeClass() throws Exception {
     //prepare log4j logger (required by Castor XML framework)
@@ -82,6 +107,27 @@ public class BGraphTest {
     graph = new BGraph(sro, bgdm);
     //the following can be used to dump the hyper-graph content
     //System.out.println(graph.test_getContent());
+    
+    allHspCount = new Hashtable<>();
+    allHspCount.put("gi|11514194|pdb|1FX8|A",1);
+    allHspCount.put("gi|20150315|pdb|1J4N|A",1);
+    allHspCount.put("gi|39654847|pdb|1RC2|B",1);
+    allHspCount.put("gi|13399662|pdb|1EVY|A",1);
+    allHspCount.put("gi|134105082|pdb|2O9D|A",1);
+    allHspCount.put("gi|83754265|pdb|2B6O|A",1);
+    allHspCount.put("gi|21466057|pdb|1LDF|A",1);
+    allHspCount.put("gi|82407721|pdb|2A9M|L",1);
+    allHspCount.put("gi|11514550|pdb|1FQY|A",1);
+    allHspCount.put("gi|134105084|pdb|2O9E|A",1);
+    allHspCount.put("gi|85544225|pdb|2B5F|A",1);
+    allHspCount.put("gi|85544014|pdb|1Z98|A",1);
+    allHspCount.put("gi|49259096|pdb|1SOR|A",1);
+    allHspCount.put("gi|83754991|pdb|2EVU|A",2);
+    allHspCount.put("gi|134105085|pdb|2O9F|A",1);
+    allHspCount.put("gi|88192744|pdb|2D57|A",1);
+    allHspCount.put("gi|56967161|pdb|1XMX|A",1);
+    allHspCount.put("gi|42543068|pdb|1NL0|L",1);
+    allHspCount.put("gi|61680729|pdb|1YMG|A",1);
   }
 
   @AfterClass
@@ -182,5 +228,90 @@ public class BGraphTest {
     
     //basic display of the results
     assertTrue(rSet.size()==20);
+  }
+  
+  @Test
+  public void testVertices(){
+    Enumeration<HDGVertex> vertices = graph.vertices();
+    HDGVertex vertex;
+    int vCounter = 0;
+    while(vertices.hasMoreElements()){
+      vCounter++;
+      vertex = vertices.nextElement();
+      assertTrue(graph.containsVertex(vertex));
+    }
+    assertTrue(vCounter==41);
+  }
+  @Test
+  public void testEdges(){
+    Enumeration<HDGHyperEdge> edges = graph.edges();
+    HDGHyperEdge edge;
+    int eCounter = 0;
+    while(edges.hasMoreElements()){
+      eCounter++;
+      edge = edges.nextElement();
+      assertTrue(graph.containsEdge(edge));
+    }
+    
+    assertTrue(eCounter==40);
+  }
+  @Test
+  public void testGraphContent1(){
+    Enumeration<HDGVertex> vertices = graph.vertices();
+    HDGVertex vertex;
+    int bo, bi, bh, bs, unk;
+    bo = bi = bh = bs = unk = 0;
+    while(vertices.hasMoreElements()){
+      vertex = vertices.nextElement();
+      switch (vertex.getType().getName()) {
+      case BGDataModel.SROUTPUT_VERTEX_TYPE:
+        bo++;
+        break;
+      case BGDataModel.SRITERATION_VERTEX_TYPE:
+        bi++;
+        break;
+      case BGDataModel.SRHIT_VERTEX_TYPE:
+        bh++;
+        break;
+      case BGDataModel.SRHSP_VERTEX_TYPE:
+        bs++;
+        break;
+      default:
+        unk++;
+      }
+    }
+    assertTrue(bo==1);
+    assertTrue(bi==1);
+    assertTrue(bh==19);
+    assertTrue(bs==20);
+    assertTrue(unk==0);
+  }
+  
+  @Test
+  public void testGraphContent2(){
+    Enumeration<HDGVertex> vertices = graph.vertices();
+    HDGVertex vertex;
+     
+    while(vertices.hasMoreElements()){
+      vertex = vertices.nextElement();
+      if (vertex.getType().getName().equals(BGDataModel.SRHIT_VERTEX_TYPE)){
+        allIds.remove(((SRHit)vertex.getData()).getHitId());
+      }
+    }
+    assertTrue(allIds.isEmpty());
+  }
+  
+  //
+  @Test
+  public void testGraphContent3(){
+    Enumeration<HDGVertex> vertices = graph.vertices();
+    HDGVertex vertex;
+     
+    while(vertices.hasMoreElements()){
+      vertex = vertices.nextElement();
+      if (vertex.getType().getName().equals(BGDataModel.SRHIT_VERTEX_TYPE)){
+        assertTrue(allHspCount.get(((SRHit)vertex.getData()).getHitId())==((SRHit)vertex.getData()).getHsps().size());
+      }
+    }
   }
 }

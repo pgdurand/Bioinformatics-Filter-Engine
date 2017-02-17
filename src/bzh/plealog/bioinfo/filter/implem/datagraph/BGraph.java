@@ -341,17 +341,17 @@ public class BGraph extends Pseudograph implements HDataGraph{
   }
 
   public int degree(HDGVertex vertex){
-    Iterator<?>            iter;
-    HashSet<HDGHyperEdge>  set;
+    Iterator<?>      iter;
+    HashSet<Object>  set;
 
     iter = BGraph.this.edgesOf(vertex).iterator();
     //the following code handles the case where a vertex is
     //involved several times in a single edge (some kind of loop) 
     //ex: if vertex 'a' is involved twice in an edge ('a,a,c' for
     //example), this code returns 1.
-    set = new HashSet<HDGHyperEdge>();
+    set = new HashSet<>();
     while(iter.hasNext()){
-      set.add((HDGHyperEdge) iter.next());
+      set.add(iter.next());
     }
     return (set.size());
   }
