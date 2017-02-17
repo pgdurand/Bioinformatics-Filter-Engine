@@ -41,14 +41,17 @@ public class BAccessorsBOutput implements BOperatorAccessors, BDataAccessors {
    * Constructor. Create a default data model including SearchResults, Features, SequenceInfo, Sequences and DataNumbering.
    */
   public BAccessorsBOutput(){
-    this(true, true, true, true);
+    this(true, true, true, true, true);
+  }
+  public BAccessorsBOutput(boolean includeFeature, boolean includeSeqInfo, boolean includeSequences, boolean includeDataNumbering){
+    this(true, includeFeature, includeSeqInfo, includeSequences, includeDataNumbering);
   }
   /**
    * Constructor. Provide a control on whet to include in the data model. It always contains SearchResult, but use the
    * constructor arguments to tell whether of not to include other data models.
    */
-  public BAccessorsBOutput(boolean includeFeature, boolean includeSeqInfo, boolean includeSequences, boolean includeDataNumbering){
-    init(includeFeature, includeSeqInfo, includeSequences, includeDataNumbering);
+  public BAccessorsBOutput(boolean includeBlast, boolean includeFeature, boolean includeSeqInfo, boolean includeSequences, boolean includeDataNumbering){
+    init(includeBlast, includeFeature, includeSeqInfo, includeSequences, includeDataNumbering);
 
     // This table reports renaming of Accessors.
     // It is used within FilterSerializerImplem.
@@ -57,7 +60,7 @@ public class BAccessorsBOutput implements BOperatorAccessors, BDataAccessors {
     accessorRenaming_.put("Query Coverage", "HSP/Local Query Coverage");
     accessorRenaming_.put("Hit Coverage", "HSP/Local Hit Coverage");
   }
-  private void init(boolean includeFeature, boolean includeSeqInfo, boolean includeSequences, boolean includeDataNumbering){
+  private void init(boolean includeBlast, boolean includeFeature, boolean includeSeqInfo, boolean includeSequences, boolean includeDataNumbering){
     BAccessorEntry entry;
     /*
      * Note: it is possible to use special functions of HGE query language
@@ -95,103 +98,105 @@ public class BAccessorsBOutput implements BOperatorAccessors, BDataAccessors {
     //filter.implem.datagraph.BGUtils
     accessors_ = new Hashtable<String, BAccessorEntry>();
 
-    //accessors for BHit
-    entry = new BAccessorEntry(ACC_HitAccession,"accession", 
-        BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    if (includeDataNumbering){
-      entry = new BAccessorEntry(ACC_HitHspCount,"countHsp", 
-          BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);/**/
+    if (includeBlast){
+      //accessors for BHit
+      entry = new BAccessorEntry(ACC_HitAccession,"accession", 
+          BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);
       accessors_.put(entry.getAccessorVisibleName(), entry);
-    }
-    entry = new BAccessorEntry(ACC_HitDefinition,"definition", 
-        BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    if (includeDataNumbering){
-      entry = new BAccessorEntry(ACC_HitIdentifier,"id", 
-          BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);/**/
+      if (includeDataNumbering){
+        entry = new BAccessorEntry(ACC_HitHspCount,"countHsp", 
+            BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);/**/
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+      }
+      entry = new BAccessorEntry(ACC_HitDefinition,"definition", 
+          BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);
       accessors_.put(entry.getAccessorVisibleName(), entry);
-      entry = new BAccessorEntry(ACC_HitLength,"length", 
-          BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);/**/
+      if (includeDataNumbering){
+        entry = new BAccessorEntry(ACC_HitIdentifier,"id", 
+            BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);/**/
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        entry = new BAccessorEntry(ACC_HitLength,"length", 
+            BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);/**/
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        entry = new BAccessorEntry(ACC_HitRank,"numi", 
+            BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);/**/
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        //part of data numbering because these values are computed with more than one hit/hsps
+        entry = new BAccessorEntry(ACC_HitQueryCoverage,"qgCover", 
+            BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);/**/
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        entry = new BAccessorEntry(ACC_HitHitCoverage,"hgCover", 
+            BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);/**/
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+      }		
+      //accessors for BHsp
+      entry = new BAccessorEntry(ACC_HspRank,"nums", 
+          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);/**/
       accessors_.put(entry.getAccessorVisibleName(), entry);
-      entry = new BAccessorEntry(ACC_HitRank,"numi", 
-          BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);/**/
+      entry = new BAccessorEntry(ACC_HspQueryCoverage,"qCover", 
+          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
       accessors_.put(entry.getAccessorVisibleName(), entry);
-      //part of data numbering because these values are computed with more than one hit/hsps
-      entry = new BAccessorEntry(ACC_HitQueryCoverage,"qgCover", 
-          BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);/**/
+      entry = new BAccessorEntry(ACC_HspHitCoverage,"hCover", 
+          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
       accessors_.put(entry.getAccessorVisibleName(), entry);
-      entry = new BAccessorEntry(ACC_HitHitCoverage,"hgCover", 
-          BGDataModel.SRHIT_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);/**/
+  
+      //accessors for BHsp.Scores
+      entry = new BAccessorEntry(ACC_BitScore,"bitScore", 
+          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
       accessors_.put(entry.getAccessorVisibleName(), entry);
-    }		
-    //accessors for BHsp
-    entry = new BAccessorEntry(ACC_HspRank,"nums", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);/**/
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    entry = new BAccessorEntry(ACC_HspQueryCoverage,"qCover", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    entry = new BAccessorEntry(ACC_HspHitCoverage,"hCover", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-
-    //accessors for BHsp.Scores
-    entry = new BAccessorEntry(ACC_BitScore,"bitScore", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    entry = new BAccessorEntry(ACC_Score,"score", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    entry = new BAccessorEntry(ACC_EValue,"evalue", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    entry = new BAccessorEntry(ACC_PctIdentity,"identity", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    entry = new BAccessorEntry(ACC_PctPositive,"positive", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    entry = new BAccessorEntry(ACC_PctGap,"gaps", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-    entry = new BAccessorEntry(ACC_AlignLength,"alignLen", 
-        BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
-    accessors_.put(entry.getAccessorVisibleName(), entry);
-
-    //accessors for BHsp.QuerySequence
-    if (includeSequences){
-      entry = new BAccessorEntry(ACC_HspQueryFrom,"qFrom", 
+      entry = new BAccessorEntry(ACC_Score,"score", 
+          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
+      accessors_.put(entry.getAccessorVisibleName(), entry);
+      entry = new BAccessorEntry(ACC_EValue,"evalue", 
+          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
+      accessors_.put(entry.getAccessorVisibleName(), entry);
+      entry = new BAccessorEntry(ACC_PctIdentity,"identity", 
+          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
+      accessors_.put(entry.getAccessorVisibleName(), entry);
+      entry = new BAccessorEntry(ACC_PctPositive,"positive", 
+          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
+      accessors_.put(entry.getAccessorVisibleName(), entry);
+      entry = new BAccessorEntry(ACC_PctGap,"gaps", 
+          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_DOUBLE);
+      accessors_.put(entry.getAccessorVisibleName(), entry);
+      entry = new BAccessorEntry(ACC_AlignLength,"alignLen", 
           BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
       accessors_.put(entry.getAccessorVisibleName(), entry);
-      entry = new BAccessorEntry(ACC_HspQueryTo,"qTo", 
-          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
-      accessors_.put(entry.getAccessorVisibleName(), entry);
-      entry = new BAccessorEntry(ACC_HspQueryFrame,"qFrame", 
-          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
-      accessors_.put(entry.getAccessorVisibleName(), entry);
-      entry = new BAccessorEntry(ACC_HspQueryGaps,"qGaps", 
-          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
-      entry = new BAccessorEntry(ACC_HspQuerySequence,"qSequence", 
-          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);
-      accessors_.put(entry.getAccessorVisibleName(), entry);
-    }
-    //accessors for BHsp.HitSequence
-    if(includeSequences){
-      entry = new BAccessorEntry(ACC_HspHitFrom,"hFrom", 
-          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
-      accessors_.put(entry.getAccessorVisibleName(), entry);
-      entry = new BAccessorEntry(ACC_HspHitTo,"hTo", 
-          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
-      accessors_.put(entry.getAccessorVisibleName(), entry);
-      entry = new BAccessorEntry(ACC_HspHitFrame,"hFrame", 
-          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
-      accessors_.put(entry.getAccessorVisibleName(), entry);
-      entry = new BAccessorEntry(ACC_HspHitGaps,"hGaps", 
-          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
-      entry = new BAccessorEntry(ACC_HspHitSequence,"hSequence", 
-          BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);
-      accessors_.put(entry.getAccessorVisibleName(), entry);
+  
+      //accessors for BHsp.QuerySequence
+      if (includeSequences){
+        entry = new BAccessorEntry(ACC_HspQueryFrom,"qFrom", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        entry = new BAccessorEntry(ACC_HspQueryTo,"qTo", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        entry = new BAccessorEntry(ACC_HspQueryFrame,"qFrame", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        entry = new BAccessorEntry(ACC_HspQueryGaps,"qGaps", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
+        entry = new BAccessorEntry(ACC_HspQuerySequence,"qSequence", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+      }
+      //accessors for BHsp.HitSequence
+      if(includeSequences){
+        entry = new BAccessorEntry(ACC_HspHitFrom,"hFrom", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        entry = new BAccessorEntry(ACC_HspHitTo,"hTo", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        entry = new BAccessorEntry(ACC_HspHitFrame,"hFrame", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+        entry = new BAccessorEntry(ACC_HspHitGaps,"hGaps", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_NUMBERS, DGMAttribute.DT_LONG);
+        entry = new BAccessorEntry(ACC_HspHitSequence,"hSequence", 
+            BGDataModel.SRHSP_VERTEX_TYPE, OPE_FOR_STRING, DGMAttribute.DT_STRING);
+        accessors_.put(entry.getAccessorVisibleName(), entry);
+      }
     }
     //accessors for Features
     if (includeFeature){
