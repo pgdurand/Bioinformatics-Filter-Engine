@@ -433,6 +433,9 @@ public class BFilterImplem implements BFilter {
     bi = bf.createBIteration();
     bi.setIterationMessage(src.getIterationMessage());
     bi.setIterationStat(src.getIterationStat());
+    bi.setIterationQueryDesc(src.getIterationQueryDesc());
+    bi.setIterationQueryID(src.getIterationQueryID());
+    bi.setIterationQueryLength(src.getIterationQueryLength());
     return bi;
   }
 
@@ -575,7 +578,6 @@ public class BFilterImplem implements BFilter {
         System.out.println(String.format("Graph build time : %d ms", (System.currentTimeMillis()-tim)));
       }
       tim = System.currentTimeMillis();
-      query_.setVerboseMode(verbose_);
       rSet=query_.execute(bGraphModel_, graph);
       if (verbose_){
         System.out.println(String.format("Execute time : %d ms", (System.currentTimeMillis()-tim)));
